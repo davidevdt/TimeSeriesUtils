@@ -1,4 +1,4 @@
-# TimeSeriesUtils
+# timeseriesutils
 
 `timeseriesutils` is a Python package designed to simplify time series analysis and modeling. It provides utilities for feature selection, model comparison, and forecasting, making it easier to build and evaluate time series models.
 
