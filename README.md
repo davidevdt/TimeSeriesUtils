@@ -1,6 +1,6 @@
 # TimeSeriesUtils
 
-`TimeSeriesUtils` is a Python package designed to simplify time series analysis and modeling. It provides utilities for feature selection, model comparison, and forecasting, making it easier to build and evaluate time series models.
+`timeseriesutils` is a Python package designed to simplify time series analysis and modeling. It provides utilities for feature selection, model comparison, and forecasting, making it easier to build and evaluate time series models.
 
 ## Features
 
@@ -10,10 +10,10 @@
 
 ## Installation
 
-You can install `TimeSeriesUtils` via pip. To do this, clone the repository and install the package in your environment:
+You can install `timeseriesutils` via pip. To do this, clone the repository and install the package in your environment:
 
 ```bash
-git clone https://github.com/yourusername/TimeSeriesUtils.git
+git clone https://github.com/yourusername/timeseriesutils.git
 cd TimeSeriesUtils
 pip install .
 ```
@@ -29,9 +29,9 @@ pip install -r requirements.txt
 ### Feature Selection
 
 ```python
-from timeseriesutils.feature_selection import FeatureSelection
+from timeseriesutils.preprocessing.feature_selection import FeatureSelection
 from sklearn.linear_model import Lasso
-from sklearn.model_selection import TimeSeriesSplit
+from timeseriesutils.model_selection.moving_window_splitter import MovingWindowSplitter
 
 # Define your models and parameter grids
 models = [Lasso()]
@@ -40,24 +40,22 @@ param_grids = {
         'alpha': [0.1, 1.0, 10.0]
     }
 }
-cv_splitter = TimeSeriesSplit(n_splits=5)
+cv_splitter = MovingWindowSplitter(n_splits=5)
 
 # Initialize the FeatureSelection object
 feature_selector = FeatureSelection(models=models, params_grids=param_grids, cv_splitter=cv_splitter)
 
 # Fit the feature selector
-feature_selector.fit(X_train, y_train)
-
-# Get the selected features
-selected_features = feature_selector.selected_features
+selected_features = feature_selector.select_features(X_train, y_train)
+selected_features
 ```
 
 ### Model Comparison
 
 ```python
-from timeseriesutils.model_comparison import ModelComparison
+from timeseriesutils.model_selection.model_selector import ModelSelector
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import TimeSeriesSplit
+from timeseriesutils.model_selection.moving_window_splitter import MovingWindowSplitter
 
 # Define your models and parameter grids
 models = [RandomForestRegressor()]
@@ -67,10 +65,10 @@ param_grids = {
         'max_depth': [10, 20]
     }
 }
-cv_splitter = TimeSeriesSplit(n_splits=5)
+cv_splitter = MovingWindowSplitter(n_splits=5)
 
 # Initialize the ModelComparison object
-model_comparator = ModelComparison(models=models, param_grids=param_grids, cv_splitter=cv_splitter)
+model_comparator = ModelSelector(models=models, param_grids=param_grids, cv_splitter=cv_splitter)
 
 # Fit the model comparator
 model_comparator.fit(X_train, y_train)
@@ -83,7 +81,7 @@ best_params = model_comparator.best_params
 ### Forecasting
 
 ```python
-from timeseriesutils.iterative_forecaster import IterativeForecaster
+from timeseriesutils.model_wrappers.iterative_forecaster import IterativeForecaster
 from sklearn.linear_model import Lasso
 
 # Initialize the IterativeForecaster
@@ -98,7 +96,7 @@ forecasts = forecaster.forecast(X_test=X_test, horizon=10)
 
 ## Contributing
 
-We welcome contributions to `TimeSeriesUtils`. Please follow these steps to contribute:
+We welcome contributions to `timeseriesutils`. Please follow these steps to contribute:
 
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature-branch`).
@@ -108,4 +106,4 @@ We welcome contributions to `TimeSeriesUtils`. Please follow these steps to cont
 
 ## License
 
-`TimeSeriesUtils` is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+`timeseriesutils` is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.

@@ -1,13 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='TimeSeriesUtils',
+    name='timeseriesutils',
     version='0.1.0',
     description='A utility package for time series analysis and forecasting.',
     long_description=open('README.md').read(),  # Ensure you have a README.md file for the long description
     long_description_content_type='text/markdown',
     author='Davide Vidotto',
-    url='https://github.com/davidevdt/TimeSeriesUtils',  # Replace with your repository URL
+    url='https://github.com/davidevdt/timeseriesutils',  # Replace with your repository URL
     packages=find_packages(),  # Automatically find packages in the current directory
     install_requires=[
         'numpy>=1.20.0',

@@ -38,7 +38,7 @@ class FeatureSelection:
         self.X_transformers = X_transformers
         self.y_transformers = y_transformers
 
-    def selected_features(self, X, y):
+    def select_features(self, X, y):
         """
         Fit the model using cross-validation and perform feature selection.
 
