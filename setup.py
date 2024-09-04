@@ -1,34 +1,35 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
-    name='timeseriesutils',
-    version='0.1.0',
-    description='A utility package for time series analysis and forecasting.',
-    long_description=open('README.md').read(),  # Ensure you have a README.md file for the long description
-    long_description_content_type='text/markdown',
-    author='Davide Vidotto',
-    url='https://github.com/davidevdt/timeseriesutils',  # Replace with your repository URL
-    packages=find_packages(),  # Automatically find packages in the current directory
-    install_requires=[
-        'numpy>=1.20.0',
-        'pandas>=1.2.0',
-        'scikit-learn>=0.24.0',
+    name="timeseriesutils",
+    version="0.1.0", 
+    author="Davide Vidotto",
+    description="A package for time series utilities and forecasting",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    url="https://github.com/davidevdt/timeseriesutils",  
+    packages=find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
     ],
-    extras_require={
-        'dev': [
-            'pytest>=6.2.0',
-            'sphinx>=4.0.0',
+    python_requires='>=3.6', 
+    install_requires=[
+        "numpy>=1.21.0",
+        "pandas>=1.3.0",
+        "scikit-learn>=0.24.0",
+        "pykalman>=0.9.5",
+    ],
+    entry_points={
+        "console_scripts": [
         ],
     },
-    classifiers=[
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-    ],
-    python_requires='>=3.8',  # Specify the minimum Python version required
-    include_package_data=True,
-    zip_safe=False,
+    project_urls={
+        "Bug Tracker": "https://github.com/davidevdt/timeseriesutils/issues",
+        "Source": "https://github.com/davidevdt/timeseriesutils",
+    },
 )

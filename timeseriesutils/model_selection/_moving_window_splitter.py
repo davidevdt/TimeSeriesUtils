@@ -40,7 +40,7 @@ class MovingWindowSplitter:
         """
         Initialize the MovingWindowSplitter.
 
-        If n_splits is specified, then train_size, test_size and step are ignored.
+        If n_splits is specified, then train_size and step are ignored.
 
         Parameters
         ----------
@@ -100,13 +100,26 @@ class MovingWindowSplitter:
         if self.n_splits is not None and self.n_splits >= n_samples:
             raise ValueError("Number of splits should be less than the number of samples")
 
-        if self.n_splits is None:
-            if 0 <= self.train_size <= 1:
-                self.train_size = int(self.train_size * n_samples)
-        else:
+        if self.n_splits is not None:
             self.train_size = int(n_samples / float(self.n_splits + 1))
             self.step = self.train_size
-            self.test_size = self.train_size
+            test_size = self.test_size
+
+            if test_size is not None: 
+                if (0 < test_size <= 1): 
+                    test_size = int(test_size * n_samples)
+                elif test_size <= 0:
+                    test_size = self.train_size
+            else: 
+                test_size=self.train_size
+            
+            if test_size > self.train_size:
+                self.test_size = self.train_size
+            else: 
+                add_factor = int((n_samples - (self.train_size * self.n_splits)) / float(self.n_splits))
+                self.train_size += add_factor
+                self.step = self.train_size 
+                self.test_size = test_size 
 
         if 0 <= self.train_size <= 1:
             self.train_size = int(self.train_size * n_samples)

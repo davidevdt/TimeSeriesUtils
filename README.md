@@ -1,109 +1,88 @@
-# timeseriesutils
+# TimeSeriesUtils
 
-`timeseriesutils` is a Python package designed to simplify time series analysis and modeling. It provides utilities for feature selection, model comparison, and forecasting, making it easier to build and evaluate time series models.
+`timeseriesutils` is a Python package designed to provide utilities for time series analysis and forecasting. It includes tools for time series feature extraction, forecasting with various models, and handling time series data with ease.
 
 ## Features
 
-- **Feature Selection**: Automatically select relevant features for time series forecasting using various models and parameter grids.
-- **Model Comparison**: Compare multiple models and hyperparameter settings to find the best model for your time series data.
-- **Forecasting**: Generate forecasts using iterative models with support for lags and custom transformers.
+- **Time Series Utilities**: Functions to handle and manipulate time series data.
+- **Iterative Forecaster**: A custom forecasting model that iteratively predicts future values using a provided regression model.
+- **Moving Window Splitter**: A splitter for time series cross-validation using a moving window approach.
+- others, such as a Kalman Filter regressor module compatible with the scikit-learn interface 
 
 ## Installation
-
-You can install `timeseriesutils` via pip. To do this, clone the repository and install the package in your environment:
+You can install `timeseriesutils` using pip. Run the following command:
 
 ```bash
 git clone https://github.com/yourusername/timeseriesutils.git
-cd TimeSeriesUtils
+cd timeseriesutils
 pip install .
 ```
 
-Alternatively, you can install the dependencies directly from the `requirements.txt` file:
+## Dependencies
+The package depends on the following libraries:
 
-```bash
-pip install -r requirements.txt
-```
+- `numpy`
+- `pandas`
+- `scikit-learn`
+- `pykalman`
 
-## Usage
+These dependencies will be automatically installed when you install timeseriesutils via pip.
 
-### Feature Selection
+## Usage 
 
-```python
-from timeseriesutils.preprocessing.feature_selection import FeatureSelection
-from sklearn.linear_model import Lasso
-from timeseriesutils.model_selection.moving_window_splitter import MovingWindowSplitter
+### Time Series Utilities
+The TimeSeriesUtils class provides various utilities for time series data, including:
 
-# Define your models and parameter grids
-models = [Lasso()]
-param_grids = {
-    'Lasso': {
-        'alpha': [0.1, 1.0, 10.0]
-    }
-}
-cv_splitter = MovingWindowSplitter(n_splits=5)
+- Feature Extraction: Extract features like hour, minute, and second from datetime columns.
+- Standardizing Frequencies: Align time series data to a consistent frequency.
+- Time Zone Conversion: Convert between UTC and other time zones.
 
-# Initialize the FeatureSelection object
-feature_selector = FeatureSelection(models=models, params_grids=param_grids, cv_splitter=cv_splitter)
-
-# Fit the feature selector
-selected_features = feature_selector.select_features(X_train, y_train)
-selected_features
-```
-
-### Model Comparison
+### Kalman Filter Regressor
+To use the KalmanFilterRegressor:
 
 ```python
-from timeseriesutils.model_selection.model_selector import ModelSelector
-from sklearn.ensemble import RandomForestRegressor
-from timeseriesutils.model_selection.moving_window_splitter import MovingWindowSplitter
+from timeseriesutils.kalman_filters import KalmanFilterRegressor
 
-# Define your models and parameter grids
-models = [RandomForestRegressor()]
-param_grids = {
-    'RandomForestRegressor': {
-        'n_estimators': [100, 200],
-        'max_depth': [10, 20]
-    }
-}
-cv_splitter = MovingWindowSplitter(n_splits=5)
+# Create and fit the model
+model = KalmanFilterRegressor()
+model.fit(X_train, y_train)
 
-# Initialize the ModelComparison object
-model_comparator = ModelSelector(models=models, param_grids=param_grids, cv_splitter=cv_splitter)
+# Predict
+predictions = model.predict(X_test)
+``` 
 
-# Fit the model comparator
-model_comparator.fit(X_train, y_train)
-
-# Get the best model and its parameters
-best_model = model_comparator.get_best_model()
-best_params = model_comparator.best_params
-```
-
-### Forecasting
+### Iterative Forecaster
+To use the IterativeForecaster:
 
 ```python
-from timeseriesutils.model_wrappers.iterative_forecaster import IterativeForecaster
-from sklearn.linear_model import Lasso
+from timeseriesutils.forecasters import IterativeForecaster
 
-# Initialize the IterativeForecaster
-forecaster = IterativeForecaster(model=Lasso(), pre_trained=False)
-
-# Fit the forecaster
+# Create and fit the model
+forecaster = IterativeForecaster(model=your_model)
 forecaster.fit(X_train, y_train)
 
-# Forecast future values
-forecasts = forecaster.forecast(X_test=X_test, horizon=10)
+# Forecast
+forecast = forecaster.forecast(y_train=y_train, X_test=X_test, steps=10)
+```
+
+### Moving Window Splitter
+To use the `MovingWindowSplitter`:
+
+```python
+from timeseriesutils.model_selection import MovingWindowSplitter
+
+# Initialize the splitter
+splitter = MovingWindowSplitter(train_size=0.5, test_size=0.2)
+
+# Generate splits
+for train_index, test_index in splitter.split(X):
+    print("TRAIN:", train_index, "TEST:", test_index)
 ```
 
 ## Contributing
-
-We welcome contributions to `timeseriesutils`. Please follow these steps to contribute:
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Make your changes and commit them (`git commit -am 'Add new feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a new Pull Request.
+Contributions are welcome! If you have suggestions or encounter issues, please open an issue or submit a pull request.
 
 ## License
+This project is licensed under the MIT License. See the `[LICENSE](LICENSE)` file for details.
 
-`timeseriesutils` is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+

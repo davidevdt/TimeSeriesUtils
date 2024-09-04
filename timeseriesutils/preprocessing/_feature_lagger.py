@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-class FeatureLagger(BaseEstimator, TransformerMixin):
+class FeaturesLagger(BaseEstimator, TransformerMixin):
     """
     A transformer that lags specified features in a DataFrame and optionally applies transformations to the data
     before lagging. This is useful for time series data where past values of a feature are used as inputs 
@@ -89,31 +89,23 @@ class FeatureLagger(BaseEstimator, TransformerMixin):
         self.col_order = []
         self.feature_names = None
 
-    def get_target(self, X, y=None, dropna=True):
+    def get_target(self, y, dropna=True):
         """
-        Retrieve the target column after dropping rows affected by lagging.
+        Retrieve the target column after dropping data points affected by lagging.
 
         Parameters
         ----------
-        X : pandas DataFrame
-            The input DataFrame.
-        
-        y : pandas Series, optional (default=None)
-            The target values. If provided, it will be used instead of extracting the target from X.
+        y : pandas Series containing the original target values. 
         
         dropna : bool, optional (default=True)
-            Whether to drop NaN values resulting from lagging.
+            Whether to drop NaN values before dropping the unlagged data.
 
         Returns
         -------
         pandas Series
             The target column after accounting for lags.
         """
-        if y is not None:
-            target = y.dropna() if dropna else y
-        else:
-            target = X[self.target_name].dropna().copy() if dropna else X[self.target_name].copy()
-
+        target = y.dropna() if dropna else y
         return target.iloc[self.max_lags:]
 
     def fit(self, X, y=None):
@@ -136,7 +128,7 @@ class FeatureLagger(BaseEstimator, TransformerMixin):
         self : object
             Returns self.
         """
-        self.col_order = [c for c in X.columns if c != self.target_name]
+        self.col_order = [c for c in X.columns if (not self.target_name or c != self.target_name)]
 
         if self.transformations:
             for transformation in self.transformations:
@@ -166,13 +158,12 @@ class FeatureLagger(BaseEstimator, TransformerMixin):
         if self.transformations:
             for transformation in self.transformations:
                 X_transformed = transformation.transform(X_transformed)
-
             X_transformed = pd.DataFrame(X_transformed, columns=self.col_order, index=X.index)
+        
+        if self.target_name:
             X_transformed[self.target_name] = X[self.target_name].copy()
-
-        new_columns = []
-
         X_transformed = pd.concat([self.lags_from_train_data, X_transformed], axis=0)
+        new_columns = []
 
         for column, lags in self.lags_dict.items():
             if column in X.columns:
