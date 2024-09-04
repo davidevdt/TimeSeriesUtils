@@ -122,9 +122,12 @@ class FeatureSelector(ModelSelector):
             self.fit(X, y, n_jobs, verbose)
 
         if self.X_transformers and self.best_model_name in self.X_transformers and self.X_transformers[self.best_model_name]:
-            last_transformer = self.X_transformers[self.best_model_name][-1]
-            if last_transformer and hasattr(last_transformer, 'get_feature_names_out'):
-                cols = last_transformer.get_feature_names_out()
+            for transformer in self.X_transformers[self.best_model_name]: 
+                idx = X.index 
+                X = transformer.transform(X)
+                if not isinstance(X, pd.DataFrame):
+                    X = pd.DataFrame(X, columns=transformer.get_feature_names_out(), index=idx)
+                cols = X.columns
 
         if isinstance(self._feature_selector, type):
             self._feature_selector = self._feature_selector(estimator=self.best_model, prefit=True)

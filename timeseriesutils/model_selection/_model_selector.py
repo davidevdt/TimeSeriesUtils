@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import ParameterGrid
 from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin, clone
 from functools import partial
 from joblib import Parallel, delayed
 
@@ -157,9 +157,12 @@ class ModelSelector:
         if y_transformers:
             for transformer in y_transformers:
                 if transformer:
-                    y_train = transformer.fit_transform(y_train).ravel()
+                    y_train = transformer.fit_transform(y_train)
 
-        model.fit(X_train, y_train)  # Ensure y is 1D
+        if not isinstance(y_train, np.ndarray):
+            y_train = y_train.to_numpy()
+
+        model.fit(X_train, y_train.ravel())
         y_pred = model.predict(X_test).reshape(-1, 1)
 
         if y_transformers:
@@ -218,7 +221,7 @@ class ModelSelector:
                 self.results[(model_name, tuple(params.items()))] = avg_score
                 if avg_score > self.best_score:
                     self.best_score = avg_score
-                    self.best_model = model.set_params(**params)
+                    self.best_model = clone(model).set_params(**params)
                     self.best_params = params
                     self.best_model_name = model_name
 
@@ -234,9 +237,12 @@ class ModelSelector:
         if self.y_transformers[self.best_model_name]:
             for transformer in self.y_transformers[self.best_model_name]:
                 if transformer:
-                    y = transformer.fit_transform(y).ravel()
+                    y = transformer.fit_transform(y)
 
-        self.best_model.fit(X, y) 
+        if not isinstance(y, np.ndarray):
+            y = y.to_numpy()
+
+        self.best_model.fit(X, y.ravel()) 
         return self
 
     def predict(self, X):
@@ -271,6 +277,8 @@ class ModelSelector:
             for transformer in self.X_transformers[self.best_model_name]:
                 if transformer:
                     X = transformer.transform(X)
+                    if not isinstance(X, pd.DataFrame):
+                        X = pd.DataFrame(X, columns=transformer.get_feature_names_out(), index=idx)
 
         y_pred = self.best_model.predict(X).reshape(-1, 1)
 
@@ -278,6 +286,9 @@ class ModelSelector:
             for transformer in reversed(self.y_transformers[self.best_model_name]):
                 if transformer:
                     y_pred = transformer.inverse_transform(y_pred)
+
+        if not isinstance(y_pred, np.ndarray):
+            y_pred = y_pred.to_numpy()
 
         y_pred = pd.Series(y_pred.ravel(), index=idx)
         return y_pred
