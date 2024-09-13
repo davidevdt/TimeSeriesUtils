@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from statsmodels.tsa.stattools import adfuller
 
 class TsUtils:
     """
@@ -45,7 +46,59 @@ class TsUtils:
         prev_data_df = pd.concat([data[column], prev_data_df], axis=1, join='inner')
         prev_data_df[f'{column}_{change_suffix}'] = prev_data_df[column] - prev_data_df[f'{column}_{prev_suffix}']
         prev_data_df[f'{column}_{perc_change_suffix}'] = prev_data_df[f'{column}_{change_suffix}'] / prev_data_df[f'{column}_{prev_suffix}']
-        return prev_data_df
+        return prev_data_df.iloc[:, -2:]
+
+    def is_stationary(series: pd.Series, alpha: float = 0.05, verbose: bool = False) -> bool:
+        """
+        Check if a time series is stationary using the Augmented Dickey-Fuller (ADF) test.
+    
+        A time series is considered stationary if it has constant mean, variance, and autocovariance over time.
+        The ADF test checks for the presence of a unit root, which is a strong indication of non-stationarity.
+        
+        Parameters:
+        -----------
+        series : pd.Series
+            The time series data to be tested for stationarity.
+        alpha : float, optional
+            The significance level to determine stationarity. Default is 0.05 (5% significance).
+        verbose : bool, optional
+            If True, prints the test statistic, p-value, and critical values from the ADF test. Default is False.
+        
+        Returns:
+        --------
+        bool
+            Returns True if the time series is stationary, otherwise False.
+        
+        Example:
+        --------
+        >>> data = pd.Series([1, 2, 1.5, 1.8, 1.2, 1.4])
+        >>> is_stationary(data, verbose=True)
+        Test Statistic: -2.34567
+        p-value: 0.1234
+        Critical Values:
+        1%: -3.5
+        5%: -2.9
+        10%: -2.6
+        False
+        """
+        
+        # Perform the Augmented Dickey-Fuller test
+        adf_test = adfuller(series, autolag='AIC')
+    
+        test_statistic = adf_test[0]  # Test statistic value
+        p_value = adf_test[1]         # p-value
+        critical_values = adf_test[4] # Dictionary of critical values
+    
+        # Verbose option to print detailed test information
+        if verbose:
+            print(f"Test Statistic: {test_statistic}")
+            print(f"p-value: {p_value}")
+            print("Critical Values:")
+            for key, value in critical_values.items():
+                print(f"   {key}: {value}")
+    
+        # Determine stationarity: if p-value is less than alpha, we reject the null hypothesis (stationary)
+        return p_value < alpha
 
     @staticmethod
     def standardize_frequencies(df, target_frequency='W', method='ffill'):
