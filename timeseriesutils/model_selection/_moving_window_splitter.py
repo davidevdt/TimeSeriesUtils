@@ -59,14 +59,15 @@ class MovingWindowSplitter:
         gap : int, default=0
             Number of samples to exclude between the training and test sets.
         """
-        self.n_splits = n_splits
+        self.total_splits = n_splits
+        self.n_splits = None
         self.train_size = train_size
         self.test_size = test_size
         if step:
             step = step if step > 0 else 1
         self.step = step
         self.gap = gap
-
+    
     def split(self, X, y=None, groups=None):
         """
         Generate indices to split data into training and test sets.
@@ -96,6 +97,7 @@ class MovingWindowSplitter:
             If the number of splits is greater than or equal to the number of samples in the data.
         """
         n_samples = X.shape[0]
+        self.n_splits = self.total_splits
 
         if self.n_splits is not None and self.n_splits >= n_samples:
             raise ValueError("Number of splits should be less than the number of samples")
@@ -177,4 +179,4 @@ class MovingWindowSplitter:
         n_splits : int
             The number of splits.
         """
-        return self.n_splits
+        return self.total_splits if self.total_splits is not None else self.n_splits
