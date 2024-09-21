@@ -115,10 +115,10 @@ class MovingWindowSplitter:
             else: 
                 test_size=self.train_size
             
-            if test_size > self.train_size:
+            if test_size >= self.train_size:
                 self.test_size = self.train_size
             else: 
-                add_factor = int((n_samples - (self.train_size * self.n_splits)) / float(self.n_splits))
+                add_factor = int((n_samples - (self.train_size * self.n_splits) - test_size) / float(self.n_splits))
                 self.train_size += add_factor
                 self.step = self.train_size 
                 self.test_size = test_size 
